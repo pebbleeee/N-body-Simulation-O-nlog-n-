@@ -1,49 +1,11 @@
 # N-body-Simulation-O-nlog-n-
-This project implements a GPU-accelerated 2D Barnes-Hut algorithm for large-scale N-body simulations using NVIDIA's CUDA framework. The Barnes-Hut method reduces computational complexity from O(N²) to O(N log N) by approximating distant particle interactions via hierarchical quadtree structures.
+This project implements a GPU-accelerated 2D N-body simulation using the Barnes-Hut algorithm and NVIDIA's CUDA framework. The Barnes-Hut algorithm reduces the computational complexity of particle interaction calculations from O(N²) to O(N log N) by approximating distant forces using a hierarchical quadtree structure. Our implementation leverages CUDA 12.2 and demonstrates real-time performance with up to 1 million particles on an RTX 4090 GPU.
 
-Overview
-Naive vs. Barnes-Hut: Naive method becomes infeasible beyond 100K particles. Our Barnes-Hut implementation achieves real-time performance up to 1 million particles.
+To optimize GPU performance, we use Morton code (Z-order) transformations for spatial indexing, enabling efficient particle sorting and proximity-based grouping. The force computation kernel uses shared memory, warp-level operations, and asynchronous memory transfers to maximize throughput. Particle data is also visualized in real-time using CUDA-OpenGL interoperation.
 
-GPU Acceleration: Optimized CUDA kernels for force computation, shared memory caching, warp-level operations, and asynchronous transfers.
+Despite significant speedups over the naive approach, the current implementation relies on CPU-based quadtree construction, which introduces a performance bottleneck at higher particle counts. This limitation becomes especially apparent beyond 800k particles, where tree construction dominates total runtime. We analyze this bottleneck and discuss the challenges of implementing recursive data structures like quadtrees on massively parallel GPU architectures.
 
-Quadtree Bottleneck: Spatial hierarchy is built on the CPU, which becomes the primary bottleneck at large scales.
+As future work, we plan to explore GPU-native quadtree construction techniques using both bottom-up and top-down strategies. These approaches utilize parallel primitives such as prefix scans, warp-cooperative sorting, and ballot/shuffle intrinsics to avoid dynamic memory allocation and improve scalability. By adopting these methods, we aim to push the simulation toward real-time performance for tens or even hundreds of millions of particles.
 
-Features
-CUDA 12.2 implementation
-
-Morton code generation and radix sort for spatial locality
-
-Real-time visualization via OpenGL + CUDA interop
-
-Asynchronous memory transfers
-
-Performance profiling on RTX 4090
-
-Challenges
-Recursive nature of quadtree construction limits parallelism
-
-CPU-side spatial indexing causes memory transfer bottlenecks
-
-Control-flow divergence and memory fragmentation on GPU
-
-Future Work
-We aim to implement fully parallel GPU-native quadtree construction using:
-
-Bottom-up prefix scan-based methods
-
-Top-down bitmask-based approaches
-
-Structure-of-Arrays memory layout
-
-Warp-cooperative primitives
-
-Contributors
-Developed collaboratively by a team of students as part of a high-performance computing project.
-
-References
-Zhang & Gruenwald (2023) - Efficient Quadtree Construction on GPUs
-
-NVIDIA CUDA C Programming Guide v12.2
-
-Thrust Parallel Algorithms Library Documentation
+This project was developed collaboratively by a team of students as part of a high-performance computing research effort. Our work builds on recent literature in GPU-accelerated spatial indexing and contributes to the growing body of research in real-time, large-scale physical simulations.
 
